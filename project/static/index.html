@@ -1,57 +1,142 @@
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Amazon Sales</title>
+
+    <style>
+        .blocks-container {
+            display: flex;
+            align-items: flex-start;
+            gap: 30px;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+
+        .block-section {
+            flex: 1;
+            min-width: 350px;
+        }
+
+        .block-section table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .block-section th,
+        .block-section td {
+            padding: 8px;
+        }
+
+        .block-section input {
+            max-width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 8px;
+        }
+
+        @media (max-width: 750px) {
+            .block-section {
+                min-width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
     <h1>Amazon Sales</h1>
 
-    <h2>Поиск заказа через HashMap</h2>
+    <!-- HashMap -->
+    <div class="blocks-container">
 
-    <input type="text" id="orderId" placeholder="Введите OrderID">
-    <button onclick="findOrder()">Найти заказ</button>
-    <pre id="orderResult"></pre>
+        <section class="block-section">
+            <h2>Поиск заказа через HashMap</h2>
 
+            <input type="text" id="orderId" placeholder="Введите OrderID">
+            <button onclick="findOrder()">Найти заказ</button>
 
-    <h2>Поиск товара через HashMap</h2>
+            <pre id="orderResult"></pre>
+        </section>
 
-    <input type="text" id="productId" placeholder="Введите ProductID">
-    <button onclick="findProduct()">Найти товар</button>
-    <pre id="productResult"></pre>
+        <section class="block-section">
+            <h2>Поиск товара через HashMap</h2>
 
+            <input type="text" id="productId" placeholder="Введите ProductID">
+            <button onclick="findProduct()">Найти товар</button>
 
-    <h2>Сумма Quantity через Segment Tree</h2>
+            <pre id="productResult"></pre>
+        </section>
 
-    <input type="number" id="left" placeholder="Начальный индекс">
-    <input type="number" id="right" placeholder="Конечный индекс">
-    <button onclick="getSum()">Посчитать сумму</button>
-    <pre id="sumResult"></pre>
-
-
-    <h2>Изменение Quantity через Segment Tree</h2>
-
-    <input type="number" id="pos" placeholder="Индекс">
-    <input type="number" id="value" placeholder="Новое значение">
-    <button onclick="updateQuantity()">Изменить</button>
-    <pre id="updateResult"></pre>
+    </div>
 
 
-    <h2>Рейтинг товаров через PageRank</h2>
+    <!-- Segment Tree -->
+    <div class="blocks-container">
 
-    <button onclick="getPageRank()">Рассчитать рейтинг</button>
+        <section class="block-section">
+            <h2>Сумма Quantity через Segment Tree</h2>
 
-    <table border="1" cellpadding="8">
-        <thead>
-            <tr>
-                <th>Место</th>
-                <th>ProductID</th>
-                <th>PageRank</th>
-            </tr>
-        </thead>
-        <tbody id="pageRankResult"></tbody>
-    </table>
+            <input type="number" id="left" placeholder="Начальный индекс (с 0)">
+            <input type="number" id="right" placeholder="Конечный индекс (включительно)">
+
+            <button onclick="getSum()">Посчитать сумму</button>
+
+            <pre id="sumResult"></pre>
+        </section>
+
+        <section class="block-section">
+            <h2>Изменение Quantity через Segment Tree</h2>
+
+            <input type="number" id="pos" placeholder="Индекс (с 0)">
+            <input type="number" id="value" placeholder="Новое значение">
+
+            <button onclick="updateQuantity()">Изменить</button>
+
+            <pre id="updateResult"></pre>
+        </section>
+
+    </div>
+
+
+    <!-- PageRank и Binary Heap -->
+    <div class="blocks-container">
+
+        <section class="block-section">
+            <h2>Рейтинг товаров через PageRank</h2>
+
+            <button onclick="getPageRank()">Рассчитать рейтинг</button>
+
+            <table border="1" cellpadding="8">
+                <thead>
+                    <tr>
+                        <th>Место</th>
+                        <th>ProductID</th>
+                        <th>PageRank</th>
+                    </tr>
+                </thead>
+                <tbody id="pageRankResult"></tbody>
+            </table>
+        </section>
+
+
+        <section class="block-section">
+            <h2>Топ-10 товаров через Binary Heap</h2>
+
+            <button onclick="getHeapTopProducts()">Рассчитать топ-10</button>
+
+            <table border="1" cellpadding="8">
+                <thead>
+                    <tr>
+                        <th>Место</th>
+                        <th>ProductID</th>
+                        <th>Название товара</th>
+                        <th>Продано единиц</th>
+                    </tr>
+                </thead>
+                <tbody id="heapResult"></tbody>
+            </table>
+        </section>
+
+    </div>
 
 
     <script>
@@ -112,6 +197,11 @@
             const right = document.getElementById('right').value;
             const result = document.getElementById('sumResult');
 
+            if (left === '' || right === '') {
+                result.textContent = 'Введите обе границы диапазона';
+                return;
+            }
+
             try {
                 const response = await fetch(
                     `/api/segment-tree/sum?left=${left}&right=${right}`
@@ -136,6 +226,11 @@
             const pos = document.getElementById('pos').value;
             const value = document.getElementById('value').value;
             const result = document.getElementById('updateResult');
+
+            if (pos === '' || value === '') {
+                result.textContent = 'Заполните оба поля';
+                return;
+            }
 
             try {
                 const response = await fetch(
@@ -198,6 +293,57 @@
                 const cell = document.createElement('td');
 
                 cell.colSpan = 3;
+                cell.textContent = 'Ошибка: ' + error.message;
+
+                row.appendChild(cell);
+                result.appendChild(row);
+            }
+        }
+
+
+        async function getHeapTopProducts() {
+            const result = document.getElementById('heapResult');
+
+            result.innerHTML = '<tr><td colspan="4">Расчёт...</td></tr>';
+
+            try {
+                const response = await fetch('/api/heap/top-products');
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.detail || 'Ошибка расчёта Binary Heap');
+                }
+
+                result.innerHTML = '';
+
+                data.forEach((product, index) => {
+                    const row = document.createElement('tr');
+
+                    const placeCell = document.createElement('td');
+                    const idCell = document.createElement('td');
+                    const nameCell = document.createElement('td');
+                    const quantityCell = document.createElement('td');
+
+                    placeCell.textContent = index + 1;
+                    idCell.textContent = product.ProductID;
+                    nameCell.textContent = product.ProductName;
+                    quantityCell.textContent = product.total_quantity;
+
+                    row.appendChild(placeCell);
+                    row.appendChild(idCell);
+                    row.appendChild(nameCell);
+                    row.appendChild(quantityCell);
+
+                    result.appendChild(row);
+                });
+
+            } catch (error) {
+                result.innerHTML = '';
+
+                const row = document.createElement('tr');
+                const cell = document.createElement('td');
+
+                cell.colSpan = 4;
                 cell.textContent = 'Ошибка: ' + error.message;
 
                 row.appendChild(cell);

@@ -6,13 +6,16 @@ from fastapi.staticfiles import StaticFiles
 from segment_tree import SegmentTreeIndex
 from hash_map import build_hash_index, build_product_hash_index
 from pagerank import get_top_products
+from binary_heap import get_top_selling_products
 
 
 app = FastAPI()
 
 df_hash = pd.read_csv('data/amazon.csv')
+
 keys = df_hash['OrderID'].astype(str)
 hash_index = build_hash_index(keys)
+
 product_keys = df_hash['ProductID'].astype(str)
 product_hash_index = build_product_hash_index(product_keys)
 
@@ -101,4 +104,6 @@ def get_product_by_id(product_id: str):
         'orders_count': int(product_rows['OrderID'].nunique())
     }
 
-
+@app.get('/api/heap/top-products')
+def get_heap_top_products():
+    return get_top_selling_products(df_hash, 10)
