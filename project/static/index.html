@@ -3,354 +3,1373 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Amazon Sales</title>
+    <title>Amazon Sales — Dashboard</title>
 
     <style>
-        .blocks-container {
+        :root {
+            --bg: #0f1420;
+            --bg-soft: #131a2a;
+            --card: #171e2e;
+            --card-inner: #101625;
+            --border: #242e47;
+            --text: #e8ecf4;
+            --muted: #8b94a9;
+            --accent: #ff9900;
+            --accent-soft: rgba(255, 153, 0, .12);
+            --blue: #4f8cff;
+            --blue-soft: rgba(79, 140, 255, .12);
+            --green: #2ecc71;
+            --green-soft: rgba(46, 204, 113, .12);
+            --red: #ff5c5c;
+            --red-soft: rgba(255, 92, 92, .12);
+            --radius: 14px;
+            --mono: "SF Mono", "JetBrains Mono", Consolas, monospace;
+        }
+
+        * { box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            margin: 0;
+            background:
+                radial-gradient(1200px 500px at 80% -10%, rgba(79, 140, 255, .08), transparent),
+                radial-gradient(900px 400px at 10% -10%, rgba(255, 153, 0, .07), transparent),
+                var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", sans-serif;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        /* ---------- Header ---------- */
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 50;
             display: flex;
-            align-items: flex-start;
-            gap: 30px;
+            align-items: center;
+            gap: 16px;
+            padding: 14px 28px;
+            background: rgba(15, 20, 32, .85);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 17px;
+        }
+
+        .logo-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 4px;
+            background: linear-gradient(135deg, var(--accent), #ffcf70);
+            box-shadow: 0 0 12px rgba(255, 153, 0, .6);
+        }
+
+        .topbar nav {
+            margin-left: auto;
+            display: flex;
+            gap: 6px;
+        }
+
+        .topbar nav a {
+            color: var(--muted);
+            text-decoration: none;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: .15s;
+        }
+
+        .topbar nav a:hover {
+            color: var(--text);
+            background: var(--card);
+        }
+
+        .layout {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 28px 28px 60px;
+        }
+
+        /* ---------- Sections ---------- */
+        .section-head {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            margin: 36px 0 16px;
+        }
+
+        .section-head:first-child { margin-top: 8px; }
+
+        .section-head h2 {
+            margin: 0;
+            font-size: 21px;
+        }
+
+        .section-head .hint {
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+        }
+
+        .card h3 {
+            margin: 0 0 4px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card .sub {
+            color: var(--muted);
+            font-size: 13px;
+            margin: 0 0 14px;
+        }
+
+        .algo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+            gap: 18px;
+        }
+
+        .badge {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: .4px;
+            padding: 3px 9px;
+            border-radius: 999px;
+            text-transform: uppercase;
+        }
+
+        .badge.hash   { background: var(--blue-soft);  color: var(--blue); }
+        .badge.tree   { background: var(--green-soft); color: var(--green); }
+        .badge.rank   { background: var(--accent-soft); color: var(--accent); }
+        .badge.boot   { background: var(--red-soft);   color: #ff9d9d; }
+
+        /* ---------- Forms ---------- */
+        .field-row {
+            display: flex;
+            gap: 10px;
             flex-wrap: wrap;
-            margin-bottom: 30px;
+            margin-bottom: 12px;
         }
 
-        .block-section {
+        input[type="text"],
+        input[type="number"] {
             flex: 1;
-            min-width: 350px;
+            min-width: 140px;
+            background: var(--card-inner);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color .15s, box-shadow .15s;
         }
 
-        .block-section table {
-            border-collapse: collapse;
+        input::placeholder { color: #5b6478; }
+
+        input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-soft);
+        }
+
+        button {
+            border: none;
+            border-radius: 10px;
+            padding: 10px 18px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: .15s;
+            white-space: nowrap;
+        }
+
+        button.primary {
+            background: linear-gradient(135deg, var(--accent), #ffb84d);
+            color: #1a1200;
+        }
+
+        button.primary:hover { filter: brightness(1.08); transform: translateY(-1px); }
+        button.primary:active { transform: translateY(0); }
+
+        button.ghost {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--muted);
+        }
+
+        button.ghost:hover { color: var(--text); border-color: var(--muted); }
+
+        button:disabled { opacity: .55; cursor: wait; transform: none; }
+
+        /* ---------- Results ---------- */
+        .result-box {
+            background: var(--card-inner);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px 14px;
+            font-family: var(--mono);
+            font-size: 13px;
+            white-space: pre-wrap;
+            word-break: break-word;
+            color: #c6cede;
+            min-height: 20px;
+        }
+
+        .result-box:empty { display: none; }
+
+        .result-box.error {
+            border-color: rgba(255, 92, 92, .4);
+            background: var(--red-soft);
+            color: #ffb3b3;
+        }
+
+        .result-box.success {
+            border-color: rgba(46, 204, 113, .35);
+            background: var(--green-soft);
+            color: #a9ecc4;
+        }
+
+        .kv-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+
+        .kv-table td {
+            padding: 6px 8px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: top;
+        }
+
+        .kv-table tr:last-child td { border-bottom: none; }
+
+        .kv-table td:first-child {
+            color: var(--muted);
+            width: 42%;
+            font-family: var(--mono);
+            font-size: 12px;
+        }
+
+        .kv-table td:last-child { font-weight: 600; word-break: break-word; }
+
+        .big-number {
+            font-size: 30px;
+            font-weight: 700;
+            color: var(--accent);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .big-number small {
+            display: block;
+            font-size: 12px;
+            font-weight: 400;
+            color: var(--muted);
+            margin-top: 2px;
+        }
+
+        /* ---------- Data tables ---------- */
+        .table-wrap {
+            overflow: auto;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            max-height: 420px;
+        }
+
+        table.data {
             width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
         }
 
-        .block-section th,
-        .block-section td {
-            padding: 8px;
+        table.data th {
+            position: sticky;
+            top: 0;
+            background: var(--bg-soft);
+            color: var(--muted);
+            text-align: left;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+            z-index: 1;
         }
 
-        .block-section input {
-            max-width: 100%;
-            box-sizing: border-box;
-            margin-bottom: 8px;
+        table.data td {
+            padding: 8px 12px;
+            border-bottom: 1px solid rgba(36, 46, 71, .55);
+            white-space: nowrap;
         }
 
-        @media (max-width: 750px) {
-            .block-section {
-                min-width: 100%;
-            }
+        table.data tbody tr:nth-child(even) { background: rgba(255, 255, 255, .015); }
+        table.data tbody tr:hover { background: var(--blue-soft); }
+        table.data tbody tr:last-child td { border-bottom: none; }
+
+        td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+        .rank-medal {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            background: var(--card-inner);
+            border: 1px solid var(--border);
+            color: var(--muted);
+        }
+
+        .rank-medal.r1 { background: rgba(255, 200, 60, .15); border-color: #ffc83c; color: #ffc83c; }
+        .rank-medal.r2 { background: rgba(190, 200, 215, .12); border-color: #bec8d7; color: #bec8d7; }
+        .rank-medal.r3 { background: rgba(205, 130, 70, .15); border-color: #cd8246; color: #cd8246; }
+
+        .mono { font-family: var(--mono); font-size: 12px; }
+
+        /* ---------- Dataset / upload ---------- */
+        .dropzone {
+            border: 2px dashed var(--border);
+            border-radius: var(--radius);
+            padding: 36px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: .2s;
+            background: var(--card);
+        }
+
+        .dropzone:hover,
+        .dropzone.dragover {
+            border-color: var(--accent);
+            background: var(--accent-soft);
+        }
+
+        .dropzone .dz-icon { font-size: 34px; }
+
+        .dropzone .dz-title {
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        .dropzone .dz-sub {
+            color: var(--muted);
+            font-size: 13px;
+            margin-top: 4px;
+        }
+
+        .dropzone .dz-sub b { color: var(--accent); }
+
+        .note {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            background: var(--blue-soft);
+            border: 1px solid rgba(79, 140, 255, .3);
+            color: #b9d0ff;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 13px;
+            margin-top: 14px;
+        }
+
+        .dataset-head {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .file-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--card-inner);
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            padding: 6px 14px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .file-chip .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--green);
+            box-shadow: 0 0 8px rgba(46, 204, 113, .7);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .stat-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px 16px;
+        }
+
+        .stat-card .stat-label {
+            color: var(--muted);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+        }
+
+        .stat-card .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            margin-top: 4px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .stat-card .stat-extra {
+            color: var(--muted);
+            font-size: 12px;
+            margin-top: 2px;
+        }
+
+        .stat-card.accent .stat-value { color: var(--accent); }
+        .stat-card.blue   .stat-value { color: var(--blue); }
+        .stat-card.green  .stat-value { color: var(--green); }
+        .stat-card.red    .stat-value { color: var(--red); }
+
+        .dataset-cols {
+            display: grid;
+            grid-template-columns: minmax(320px, 5fr) minmax(320px, 7fr);
+            gap: 18px;
+            align-items: start;
+        }
+
+        @media (max-width: 980px) {
+            .dataset-cols { grid-template-columns: 1fr; }
+        }
+
+        .panel-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin: 0 0 10px;
+            color: var(--text);
+        }
+
+        .type-chip {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-weight: 600;
+        }
+
+        .type-chip.num  { background: var(--green-soft); color: var(--green); }
+        .type-chip.text { background: var(--blue-soft);  color: var(--blue); }
+
+        .pager {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .pager button { padding: 6px 12px; font-size: 13px; }
+        .pager .spacer { flex: 1; }
+
+        .hidden { display: none !important; }
+
+        .progress {
+            height: 6px;
+            border-radius: 999px;
+            background: var(--card-inner);
+            overflow: hidden;
+            margin-top: 14px;
+        }
+
+        .progress .bar {
+            height: 100%;
+            width: 0;
+            background: linear-gradient(90deg, var(--accent), #ffcf70);
+            transition: width .2s;
+        }
+
+        footer {
+            text-align: center;
+            color: #5b6478;
+            font-size: 12px;
+            padding: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        @media (max-width: 640px) {
+            .layout { padding: 18px 14px 40px; }
+            .topbar { padding: 12px 14px; }
+            .topbar nav { display: none; }
+            .algo-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
-    <h1>Amazon Sales</h1>
 
-    <!-- HashMap -->
-    <div class="blocks-container">
+<header class="topbar">
+    <div class="logo"><span class="logo-dot"></span> Amazon Sales</div>
+    <nav>
+        <a href="#dataset">Датасет</a>
+        <a href="#search">Поиск</a>
+        <a href="#segment">Segment Tree</a>
+        <a href="#rating">Рейтинги</a>
+        <a href="#bootstrap">Bootstrap</a>
+    </nav>
+</header>
 
-        <section class="block-section">
-            <h2>Поиск заказа через HashMap</h2>
+<div class="layout">
 
-            <input type="text" id="orderId" placeholder="Введите OrderID">
-            <button onclick="findOrder()">Найти заказ</button>
-
-            <pre id="orderResult"></pre>
-        </section>
-
-        <section class="block-section">
-            <h2>Поиск товара через HashMap</h2>
-
-            <input type="text" id="productId" placeholder="Введите ProductID">
-            <button onclick="findProduct()">Найти товар</button>
-
-            <pre id="productResult"></pre>
-        </section>
-
+    <!-- ==================== ДАТАСЕТ ==================== -->
+    <div class="section-head" id="dataset">
+        <h2>📦 Датасет</h2>
+        <span class="hint">загрузите CSV, чтобы посмотреть состав и статистику данных</span>
     </div>
 
-
-    <!-- Segment Tree -->
-    <div class="blocks-container">
-
-        <section class="block-section">
-            <h2>Сумма Quantity через Segment Tree</h2>
-
-            <input type="number" id="left" placeholder="Начальный индекс (с 0)">
-            <input type="number" id="right" placeholder="Конечный индекс (включительно)">
-
-            <button onclick="getSum()">Посчитать сумму</button>
-
-            <pre id="sumResult"></pre>
-        </section>
-
-        <section class="block-section">
-            <h2>Изменение Quantity через Segment Tree</h2>
-
-            <input type="number" id="pos" placeholder="Индекс (с 0)">
-            <input type="number" id="value" placeholder="Новое значение">
-
-            <button onclick="updateQuantity()">Изменить</button>
-
-            <pre id="updateResult"></pre>
-        </section>
-
+    <div id="dropzone" class="dropzone">
+        <div class="dz-icon">📄</div>
+        <div class="dz-title">Перетащите CSV-файл сюда или нажмите для выбора</div>
+        <div class="dz-sub">Поддерживается <b>.csv</b> (разделители «,», «;», табуляция) — например, Amazon.csv</div>
+        <input type="file" id="fileInput" accept=".csv,text/csv" class="hidden">
+        <div class="progress hidden" id="uploadProgress"><div class="bar" id="uploadBar"></div></div>
     </div>
 
-
-    <!-- PageRank и Binary Heap -->
-    <div class="blocks-container">
-
-        <section class="block-section">
-            <h2>Рейтинг товаров через PageRank</h2>
-
-            <button onclick="getPageRank()">Рассчитать рейтинг</button>
-
-            <table border="1" cellpadding="8">
-                <thead>
-                    <tr>
-                        <th>Место</th>
-                        <th>ProductID</th>
-                        <th>PageRank</th>
-                    </tr>
-                </thead>
-                <tbody id="pageRankResult"></tbody>
-            </table>
-        </section>
-
-
-        <section class="block-section">
-            <h2>Топ-10 товаров через Binary Heap</h2>
-
-            <button onclick="getHeapTopProducts()">Рассчитать топ-10</button>
-
-            <table border="1" cellpadding="8">
-                <thead>
-                    <tr>
-                        <th>Место</th>
-                        <th>ProductID</th>
-                        <th>Название товара</th>
-                        <th>Продано единиц</th>
-                    </tr>
-                </thead>
-                <tbody id="heapResult"></tbody>
-            </table>
-        </section>
-
+    <div class="note">
+        <span>ℹ️</span>
+        <span>Файл отправляется на сервер и становится датасетом для алгоритмов ниже.
+        Пока CSV не загружен, алгоритмы не работают.</span>
     </div>
 
+    <div id="datasetView" class="hidden" style="margin-top:18px;">
+        <div class="dataset-head">
+            <span class="file-chip"><span class="dot"></span><span id="fileName">—</span></span>
+            <span class="hint" id="fileMeta" style="color:var(--muted);font-size:13px;"></span>
+            <span style="flex:1"></span>
+            <button class="ghost" onclick="resetDataset()">✕ Сбросить</button>
+        </div>
 
-    <script>
-        async function findOrder() {
-            const orderId = document.getElementById('orderId').value;
-            const result = document.getElementById('orderResult');
+        <div class="stats-grid" id="statsGrid"></div>
 
-            try {
-                const response = await fetch(
-                    `/api/hash-map/${encodeURIComponent(orderId)}`
-                );
+        <div class="dataset-cols">
+            <div class="card">
+                <p class="panel-title">Колонки (<span id="colCount">0</span>)</p>
+                <div class="table-wrap" style="max-height:460px;">
+                    <table class="data">
+                        <thead>
+                            <tr>
+                                <th>Колонка</th>
+                                <th>Тип</th>
+                                <th class="num">Уникальных</th>
+                                <th class="num">Пропусков</th>
+                                <th>Диапазон / пример</th>
+                            </tr>
+                        </thead>
+                        <tbody id="columnsBody"></tbody>
+                    </table>
+                </div>
+            </div>
 
-                const data = await response.json();
+            <div class="card">
+                <p class="panel-title">Предпросмотр данных</p>
+                <div class="table-wrap" style="max-height:460px;">
+                    <table class="data">
+                        <thead id="previewHead"></thead>
+                        <tbody id="previewBody"></tbody>
+                    </table>
+                </div>
+                <div class="pager">
+                    <button class="ghost" id="prevPage" onclick="changePage(-1)">← Назад</button>
+                    <button class="ghost" id="nextPage" onclick="changePage(1)">Вперёд →</button>
+                    <span class="spacer"></span>
+                    <span id="pageInfo"></span>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                if (!response.ok) {
-                    result.textContent = data.detail || 'Заказ не найден';
-                    return;
+    <!-- ==================== ПОИСК ==================== -->
+    <div class="section-head" id="search">
+        <h2>🔎 Поиск</h2>
+        <span class="hint">HashMap — доступ к заказам и товарам за O(1)</span>
+    </div>
+
+    <div class="algo-grid">
+        <section class="card">
+            <h3><span class="badge hash">HashMap</span> Поиск заказа</h3>
+            <p class="sub">Найдите заказ по его OrderID</p>
+
+            <div class="field-row">
+                <input type="text" id="orderId" placeholder="Например: ORD0000001">
+                <button class="primary" id="btnOrder" onclick="findOrder()">Найти заказ</button>
+            </div>
+
+            <div id="orderResult"></div>
+        </section>
+
+        <section class="card">
+            <h3><span class="badge hash">HashMap</span> Поиск товара</h3>
+            <p class="sub">Сводка по товару: продажи и количество заказов</p>
+
+            <div class="field-row">
+                <input type="text" id="productId" placeholder="Например: P00014">
+                <button class="primary" id="btnProduct" onclick="findProduct()">Найти товар</button>
+            </div>
+
+            <div id="productResult"></div>
+        </section>
+    </div>
+
+    <!-- ==================== SEGMENT TREE ==================== -->
+    <div class="section-head" id="segment">
+        <h2>🌲 Segment Tree</h2>
+        <span class="hint">суммы Quantity по диапазону и точечные обновления за O(log n)</span>
+    </div>
+
+    <div class="algo-grid">
+        <section class="card">
+            <h3><span class="badge tree">Segment Tree</span> Сумма Quantity</h3>
+            <p class="sub">Сумма количеств в диапазоне строк [left, right], индексы с 0</p>
+
+            <div class="field-row">
+                <input type="number" id="left" placeholder="Начальный индекс (с 0)" min="0">
+                <input type="number" id="right" placeholder="Конечный индекс (включительно)" min="0">
+            </div>
+            <div class="field-row">
+                <button class="primary" id="btnSum" onclick="getSum()">Посчитать сумму</button>
+            </div>
+
+            <div id="sumResult"></div>
+        </section>
+
+        <section class="card">
+            <h3><span class="badge tree">Segment Tree</span> Изменение Quantity</h3>
+            <p class="sub">Обновить значение Quantity в конкретной позиции</p>
+
+            <div class="field-row">
+                <input type="number" id="pos" placeholder="Индекс (с 0)" min="0">
+                <input type="number" id="value" placeholder="Новое значение">
+            </div>
+            <div class="field-row">
+                <button class="primary" id="btnUpdate" onclick="updateQuantity()">Изменить</button>
+            </div>
+
+            <div id="updateResult"></div>
+        </section>
+    </div>
+
+    <!-- ==================== РЕЙТИНГИ ==================== -->
+    <div class="section-head" id="rating">
+        <h2>🏆 Рейтинги товаров</h2>
+        <span class="hint">PageRank и Binary Heap</span>
+    </div>
+
+    <div class="algo-grid">
+        <section class="card">
+            <h3><span class="badge rank">PageRank</span> Рейтинг товаров</h3>
+            <p class="sub">Важность товаров по графу совместных покупок</p>
+
+            <div class="field-row">
+                <button class="primary" id="btnRank" onclick="getPageRank()">Рассчитать рейтинг</button>
+            </div>
+
+            <div class="table-wrap hidden" id="pageRankWrap">
+                <table class="data">
+                    <thead>
+                        <tr>
+                            <th>Место</th>
+                            <th>ProductID</th>
+                            <th class="num">PageRank</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pageRankResult"></tbody>
+                </table>
+            </div>
+            <div id="pageRankError"></div>
+        </section>
+
+        <section class="card">
+            <h3><span class="badge rank">Binary Heap</span> Топ-10 товаров</h3>
+            <p class="sub">Самые продаваемые товары по количеству единиц</p>
+
+            <div class="field-row">
+                <button class="primary" id="btnHeap" onclick="getHeapTopProducts()">Рассчитать топ-10</button>
+            </div>
+
+            <div class="table-wrap hidden" id="heapWrap">
+                <table class="data">
+                    <thead>
+                        <tr>
+                            <th>Место</th>
+                            <th>ProductID</th>
+                            <th>Название товара</th>
+                            <th class="num">Продано единиц</th>
+                        </tr>
+                    </thead>
+                    <tbody id="heapResult"></tbody>
+                </table>
+            </div>
+            <div id="heapError"></div>
+        </section>
+    </div>
+
+    <!-- ==================== BOOTSTRAP ==================== -->
+    <div class="section-head" id="bootstrap">
+        <h2>📊 Bootstrap-анализ</h2>
+        <span class="hint">доверительный интервал средних трат покупателя</span>
+    </div>
+
+    <div class="algo-grid">
+        <section class="card">
+            <h3><span class="badge boot">Bootstrap</span> Средние траты покупателя</h3>
+            <p class="sub">95% доверительный интервал средней суммы трат на клиента (заказы Delivered)</p>
+
+            <div class="field-row">
+                <input type="number" id="bootRepeats" value="1000" min="100" max="10000" step="100"
+                       placeholder="Повторений (100–10000)">
+                <button class="primary" id="btnBoot" onclick="getBootstrap()">Рассчитать</button>
+            </div>
+
+            <div id="bootstrapResult"></div>
+        </section>
+    </div>
+
+</div>
+
+<footer>Amazon Sales Dashboard · FastAPI + vanilla JS · данные алгоритмов: загруженный CSV</footer>
+
+<script>
+    /* =====================================================
+       Утилиты
+    ===================================================== */
+    function esc(value) {
+        return String(value)
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;');
+    }
+
+    function fmtInt(n) {
+        return Number(n).toLocaleString('ru-RU');
+    }
+
+    function fmtBytes(bytes) {
+        if (bytes < 1024) return bytes + ' Б';
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' КБ';
+        return (bytes / (1024 * 1024)).toFixed(2) + ' МБ';
+    }
+
+    function showError(el, message) {
+        el.innerHTML = '<div class="result-box error">' + esc(message) + '</div>';
+    }
+
+    function setLoading(btn, loading, label) {
+        if (loading) {
+            btn.dataset.label = btn.textContent;
+            btn.textContent = label || 'Расчёт…';
+            btn.disabled = true;
+        } else {
+            btn.textContent = btn.dataset.label || btn.textContent;
+            btn.disabled = false;
+        }
+    }
+
+    function kvTable(pairs) {
+        const rows = pairs.map(([k, v]) =>
+            '<tr><td>' + esc(k) + '</td><td>' + esc(v) + '</td></tr>'
+        ).join('');
+        return '<div class="result-box" style="padding:4px 8px;">' +
+               '<table class="kv-table">' + rows + '</table></div>';
+    }
+
+    /* =====================================================
+       Загрузка и разбор датасета (только в браузере)
+    ===================================================== */
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('fileInput');
+
+    let dataset = null;      // { name, size, headers, rows, stats }
+    let previewPage = 0;
+    const PAGE_SIZE = 10;
+
+    dropzone.addEventListener('click', () => fileInput.click());
+
+    dropzone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropzone.classList.add('dragover');
+    });
+
+    dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+
+    dropzone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropzone.classList.remove('dragover');
+        if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+    });
+
+    fileInput.addEventListener('change', () => {
+        if (fileInput.files.length) handleFile(fileInput.files[0]);
+        fileInput.value = '';
+    });
+
+    function handleFile(file) {
+        if (!/\.csv$/i.test(file.name) && file.type !== 'text/csv') {
+            alert('Пожалуйста, выберите файл в формате CSV');
+            return;
+        }
+
+        const progress = document.getElementById('uploadProgress');
+        const bar = document.getElementById('uploadBar');
+        progress.classList.remove('hidden');
+        bar.style.width = '15%';
+
+        const reader = new FileReader();
+
+        reader.onprogress = (e) => {
+            if (e.lengthComputable) {
+                bar.style.width = (15 + 60 * e.loaded / e.total) + '%';
+            }
+        };
+
+        reader.onload = () => {
+            bar.style.width = '85%';
+            // даём браузеру отрисовать прогресс перед тяжёлым разбором
+            setTimeout(async () => {
+                try {
+                    const parsed = parseCSV(reader.result);
+                    if (parsed.length < 2) throw new Error('Файл пуст или содержит только заголовок');
+
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    const response = await fetch('/api/dataset', { method: 'POST', body: formData });
+                    if (!response.ok) {
+                        const err = await response.json();
+                        throw new Error(err.detail || 'Ошибка загрузки на сервер');
+                    }
+
+                    const headers = parsed[0];
+                    const rows = parsed.slice(1).filter(r => r.some(c => c !== ''));
+
+                    dataset = {
+                        name: file.name,
+                        size: file.size,
+                        headers,
+                        rows,
+                        stats: computeStats(headers, rows)
+                    };
+
+                    previewPage = 0;
+                    renderDataset();
+                    bar.style.width = '100%';
+                    setTimeout(() => {
+                        progress.classList.add('hidden');
+                        bar.style.width = '0';
+                    }, 400);
+                } catch (err) {
+                    progress.classList.add('hidden');
+                    bar.style.width = '0';
+                    alert('Не удалось загрузить CSV: ' + err.message);
                 }
+            }, 30);
+        };
 
-                result.textContent = JSON.stringify(data, null, 2);
+        reader.onerror = () => {
+            progress.classList.add('hidden');
+            alert('Ошибка чтения файла');
+        };
 
-            } catch (error) {
-                result.textContent = 'Ошибка: ' + error.message;
+        reader.readAsText(file, 'UTF-8');
+    }
+
+    function detectDelimiter(text) {
+        const firstLine = text.slice(0, text.indexOf('\n') === -1 ? text.length : text.indexOf('\n'));
+        const candidates = [',', ';', '\t'];
+        let best = ',', bestCount = -1;
+        for (const d of candidates) {
+            const count = firstLine.split(d).length - 1;
+            if (count > bestCount) { bestCount = count; best = d; }
+        }
+        return best;
+    }
+
+    function parseCSV(text) {
+        if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1); // BOM
+        const delim = detectDelimiter(text);
+        const rows = [];
+        let row = [], field = '', inQuotes = false;
+
+        for (let i = 0; i < text.length; i++) {
+            const ch = text[i];
+
+            if (inQuotes) {
+                if (ch === '"') {
+                    if (text[i + 1] === '"') { field += '"'; i++; }
+                    else inQuotes = false;
+                } else field += ch;
+            } else if (ch === '"') {
+                inQuotes = true;
+            } else if (ch === delim) {
+                row.push(field); field = '';
+            } else if (ch === '\n' || ch === '\r') {
+                if (ch === '\r' && text[i + 1] === '\n') i++;
+                row.push(field); field = '';
+                rows.push(row); row = [];
+            } else {
+                field += ch;
             }
         }
 
-
-        async function findProduct() {
-            const productId = document.getElementById('productId').value;
-            const result = document.getElementById('productResult');
-
-            try {
-                const response = await fetch(
-                    `/api/hash-map/product/${encodeURIComponent(productId)}`
-                );
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    result.textContent = data.detail || 'Товар не найден';
-                    return;
-                }
-
-                result.textContent =
-                    `ProductID: ${data.ProductID}\n` +
-                    `Название: ${data.ProductName}\n` +
-                    `Продано единиц: ${data.total_quantity}\n` +
-                    `Количество заказов: ${data.orders_count}`;
-
-            } catch (error) {
-                result.textContent = 'Ошибка: ' + error.message;
-            }
+        if (field !== '' || row.length) {
+            row.push(field);
+            rows.push(row);
         }
 
+        return rows;
+    }
 
-        async function getSum() {
-            const left = document.getElementById('left').value;
-            const right = document.getElementById('right').value;
-            const result = document.getElementById('sumResult');
+    function computeStats(headers, rows) {
+        const n = rows.length;
+        const cols = headers.map((name, idx) => {
+            let missing = 0, numeric = 0;
+            let min = Infinity, max = -Infinity, sum = 0;
+            const unique = new Set();
+            let example = '';
 
-            if (left === '' || right === '') {
-                result.textContent = 'Введите обе границы диапазона';
+            for (let i = 0; i < n; i++) {
+                const raw = (rows[i][idx] ?? '').trim();
+                if (raw === '') { missing++; continue; }
+
+                unique.add(raw);
+                if (!example) example = raw;
+
+                const num = Number(raw);
+                if (!isNaN(num) && raw !== '') {
+                    numeric++;
+                    if (num < min) min = num;
+                    if (num > max) max = num;
+                    sum += num;
+                }
+            }
+
+            const filled = n - missing;
+            const isNumeric = filled > 0 && numeric / filled >= 0.9;
+
+            return {
+                name,
+                isNumeric,
+                missing,
+                unique: unique.size,
+                min: isNumeric ? min : null,
+                max: isNumeric ? max : null,
+                mean: isNumeric && numeric ? sum / numeric : null,
+                example
+            };
+        });
+
+        const totalMissing = cols.reduce((s, c) => s + c.missing, 0);
+        const numericCols = cols.filter(c => c.isNumeric).length;
+
+        return { cols, totalMissing, numericCols, textCols: cols.length - numericCols };
+    }
+
+    function renderDataset() {
+        document.getElementById('dropzone').classList.add('hidden');
+        document.getElementById('datasetView').classList.remove('hidden');
+
+        document.getElementById('fileName').textContent = dataset.name;
+        document.getElementById('fileMeta').textContent = fmtBytes(dataset.size);
+
+        const s = dataset.stats;
+        const missingPct = dataset.rows.length && dataset.headers.length
+            ? (100 * s.totalMissing / (dataset.rows.length * dataset.headers.length)).toFixed(2)
+            : '0';
+
+        const cards = [
+            { label: 'Строк', value: fmtInt(dataset.rows.length), extra: 'без заголовка', cls: 'accent' },
+            { label: 'Колонок', value: fmtInt(dataset.headers.length), extra: 'признаков в файле', cls: 'blue' },
+            { label: 'Размер файла', value: fmtBytes(dataset.size), extra: 'на диске', cls: '' },
+            { label: 'Пропусков', value: fmtInt(s.totalMissing), extra: missingPct + '% ячеек', cls: s.totalMissing ? 'red' : 'green' },
+            { label: 'Числовых колонок', value: fmtInt(s.numericCols), extra: 'определено автоматически', cls: 'green' },
+            { label: 'Текстовых колонок', value: fmtInt(s.textCols), extra: 'категории, ID, даты', cls: 'blue' }
+        ];
+
+        document.getElementById('statsGrid').innerHTML = cards.map(c =>
+            '<div class="stat-card ' + c.cls + '">' +
+                '<div class="stat-label">' + esc(c.label) + '</div>' +
+                '<div class="stat-value">' + esc(c.value) + '</div>' +
+                '<div class="stat-extra">' + esc(c.extra) + '</div>' +
+            '</div>'
+        ).join('');
+
+        document.getElementById('colCount').textContent = dataset.headers.length;
+
+        document.getElementById('columnsBody').innerHTML = s.cols.map(c => {
+            let range;
+            if (c.isNumeric) {
+                range = 'min ' + fmtNum(c.min) + ' · max ' + fmtNum(c.max) +
+                        ' · avg ' + fmtNum(c.mean);
+            } else {
+                range = c.example.length > 28 ? c.example.slice(0, 28) + '…' : c.example;
+            }
+            return '<tr>' +
+                '<td class="mono">' + esc(c.name) + '</td>' +
+                '<td><span class="type-chip ' + (c.isNumeric ? 'num' : 'text') + '">' +
+                    (c.isNumeric ? 'число' : 'текст') + '</span></td>' +
+                '<td class="num">' + fmtInt(c.unique) + '</td>' +
+                '<td class="num">' + (c.missing ? fmtInt(c.missing) : '—') + '</td>' +
+                '<td class="mono" style="color:var(--muted)">' + esc(range) + '</td>' +
+            '</tr>';
+        }).join('');
+
+        document.getElementById('previewHead').innerHTML =
+            '<tr><th>#</th>' + dataset.headers.map(h => '<th>' + esc(h) + '</th>').join('') + '</tr>';
+
+        renderPreviewPage();
+    }
+
+    function fmtNum(v) {
+        if (v === null || v === undefined || !isFinite(v)) return '—';
+        return Number(v.toFixed(2)).toLocaleString('ru-RU');
+    }
+
+    function renderPreviewPage() {
+        const total = dataset.rows.length;
+        const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+        previewPage = Math.min(Math.max(0, previewPage), pages - 1);
+
+        const start = previewPage * PAGE_SIZE;
+        const slice = dataset.rows.slice(start, start + PAGE_SIZE);
+
+        document.getElementById('previewBody').innerHTML = slice.map((row, i) =>
+            '<tr><td class="num" style="color:var(--muted)">' + fmtInt(start + i + 1) + '</td>' +
+            dataset.headers.map((_, j) => {
+                const v = row[j] ?? '';
+                const isNum = dataset.stats.cols[j].isNumeric;
+                return '<td class="' + (isNum ? 'num mono' : '') + '">' + esc(v) + '</td>';
+            }).join('') + '</tr>'
+        ).join('');
+
+        document.getElementById('pageInfo').textContent =
+            'Строки ' + fmtInt(start + 1) + '–' + fmtInt(Math.min(start + PAGE_SIZE, total)) +
+            ' из ' + fmtInt(total);
+
+        document.getElementById('prevPage').disabled = previewPage === 0;
+        document.getElementById('nextPage').disabled = previewPage >= pages - 1;
+    }
+
+    function changePage(delta) {
+        previewPage += delta;
+        renderPreviewPage();
+    }
+
+    function resetDataset() {
+        dataset = null;
+        fetch('/api/dataset', { method: 'DELETE' });
+        document.getElementById('datasetView').classList.add('hidden');
+        document.getElementById('dropzone').classList.remove('hidden');
+    }
+
+    /* =====================================================
+       HashMap — поиск заказа
+    ===================================================== */
+    async function findOrder() {
+        const orderId = document.getElementById('orderId').value.trim();
+        const result = document.getElementById('orderResult');
+        const btn = document.getElementById('btnOrder');
+
+        if (!orderId) {
+            showError(result, 'Введите OrderID');
+            return;
+        }
+
+        setLoading(btn, true, 'Ищем…');
+
+        try {
+            const response = await fetch(`/api/hash-map/${encodeURIComponent(orderId)}`);
+            const data = await response.json();
+
+            if (!response.ok) {
+                showError(result, data.detail || 'Заказ не найден');
                 return;
             }
 
-            try {
-                const response = await fetch(
-                    `/api/segment-tree/sum?left=${left}&right=${right}`
-                );
+            result.innerHTML = kvTable(Object.entries(data));
 
-                const data = await response.json();
+        } catch (error) {
+            showError(result, 'Ошибка: ' + error.message);
+        } finally {
+            setLoading(btn, false);
+        }
+    }
 
-                if (!response.ok) {
-                    result.textContent = data.detail || 'Ошибка расчёта';
-                    return;
-                }
+    /* =====================================================
+       HashMap — поиск товара
+    ===================================================== */
+    async function findProduct() {
+        const productId = document.getElementById('productId').value.trim();
+        const result = document.getElementById('productResult');
+        const btn = document.getElementById('btnProduct');
 
-                result.textContent = JSON.stringify(data, null, 2);
-
-            } catch (error) {
-                result.textContent = 'Ошибка: ' + error.message;
-            }
+        if (!productId) {
+            showError(result, 'Введите ProductID');
+            return;
         }
 
+        setLoading(btn, true, 'Ищем…');
 
-        async function updateQuantity() {
-            const pos = document.getElementById('pos').value;
-            const value = document.getElementById('value').value;
-            const result = document.getElementById('updateResult');
+        try {
+            const response = await fetch(`/api/hash-map/product/${encodeURIComponent(productId)}`);
+            const data = await response.json();
 
-            if (pos === '' || value === '') {
-                result.textContent = 'Заполните оба поля';
+            if (!response.ok) {
+                showError(result, data.detail || 'Товар не найден');
                 return;
             }
 
-            try {
-                const response = await fetch(
-                    `/api/segment-tree/update?pos=${pos}&value=${value}`,
-                    { method: 'PUT' }
-                );
+            result.innerHTML =
+                '<div class="result-box" style="display:flex;gap:24px;flex-wrap:wrap;align-items:center;">' +
+                    '<div class="big-number">' + fmtInt(data.total_quantity) +
+                        '<small>продано единиц</small></div>' +
+                    '<div class="big-number" style="color:var(--blue)">' + fmtInt(data.orders_count) +
+                        '<small>заказов</small></div>' +
+                    '<div style="flex:1;min-width:160px;">' +
+                        '<div style="font-weight:600;">' + esc(data.ProductName) + '</div>' +
+                        '<div class="mono" style="color:var(--muted)">' + esc(data.ProductID) + '</div>' +
+                    '</div>' +
+                '</div>';
 
-                const data = await response.json();
+        } catch (error) {
+            showError(result, 'Ошибка: ' + error.message);
+        } finally {
+            setLoading(btn, false);
+        }
+    }
 
-                if (!response.ok) {
-                    result.textContent = data.detail || 'Ошибка обновления';
-                    return;
-                }
+    /* =====================================================
+       Segment Tree — сумма
+    ===================================================== */
+    async function getSum() {
+        const left = document.getElementById('left').value;
+        const right = document.getElementById('right').value;
+        const result = document.getElementById('sumResult');
+        const btn = document.getElementById('btnSum');
 
-                result.textContent = JSON.stringify(data, null, 2);
-
-            } catch (error) {
-                result.textContent = 'Ошибка: ' + error.message;
-            }
+        if (left === '' || right === '') {
+            showError(result, 'Введите обе границы диапазона');
+            return;
         }
 
+        setLoading(btn, true, 'Считаем…');
 
-        async function getPageRank() {
-            const result = document.getElementById('pageRankResult');
+        try {
+            const response = await fetch(`/api/segment-tree/sum?left=${left}&right=${right}`);
+            const data = await response.json();
 
-            result.innerHTML = '<tr><td colspan="3">Расчёт...</td></tr>';
-
-            try {
-                const response = await fetch('/api/pagerank');
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.detail || 'Ошибка расчёта PageRank');
-                }
-
-                result.innerHTML = '';
-
-                data.forEach((product, index) => {
-                    const row = document.createElement('tr');
-
-                    const placeCell = document.createElement('td');
-                    const productCell = document.createElement('td');
-                    const rankCell = document.createElement('td');
-
-                    placeCell.textContent = index + 1;
-                    productCell.textContent = product.ProductID;
-                    rankCell.textContent = product.PageRank.toFixed(6);
-
-                    row.appendChild(placeCell);
-                    row.appendChild(productCell);
-                    row.appendChild(rankCell);
-
-                    result.appendChild(row);
-                });
-
-            } catch (error) {
-                result.innerHTML = '';
-
-                const row = document.createElement('tr');
-                const cell = document.createElement('td');
-
-                cell.colSpan = 3;
-                cell.textContent = 'Ошибка: ' + error.message;
-
-                row.appendChild(cell);
-                result.appendChild(row);
+            if (!response.ok) {
+                showError(result, data.detail || 'Ошибка расчёта');
+                return;
             }
+
+            result.innerHTML =
+                '<div class="result-box" style="text-align:center;">' +
+                    '<div class="big-number">' + fmtInt(data.quantity_sum) +
+                        '<small>сумма Quantity в диапазоне [' + esc(data.left) + ', ' + esc(data.right) + ']</small>' +
+                    '</div>' +
+                '</div>';
+
+        } catch (error) {
+            showError(result, 'Ошибка: ' + error.message);
+        } finally {
+            setLoading(btn, false);
+        }
+    }
+
+    /* =====================================================
+       Segment Tree — обновление
+    ===================================================== */
+    async function updateQuantity() {
+        const pos = document.getElementById('pos').value;
+        const value = document.getElementById('value').value;
+        const result = document.getElementById('updateResult');
+        const btn = document.getElementById('btnUpdate');
+
+        if (pos === '' || value === '') {
+            showError(result, 'Заполните оба поля');
+            return;
         }
 
+        setLoading(btn, true, 'Обновляем…');
 
-        async function getHeapTopProducts() {
-            const result = document.getElementById('heapResult');
+        try {
+            const response = await fetch(
+                `/api/segment-tree/update?pos=${pos}&value=${value}`,
+                { method: 'PUT' }
+            );
+            const data = await response.json();
 
-            result.innerHTML = '<tr><td colspan="4">Расчёт...</td></tr>';
-
-            try {
-                const response = await fetch('/api/heap/top-products');
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.detail || 'Ошибка расчёта Binary Heap');
-                }
-
-                result.innerHTML = '';
-
-                data.forEach((product, index) => {
-                    const row = document.createElement('tr');
-
-                    const placeCell = document.createElement('td');
-                    const idCell = document.createElement('td');
-                    const nameCell = document.createElement('td');
-                    const quantityCell = document.createElement('td');
-
-                    placeCell.textContent = index + 1;
-                    idCell.textContent = product.ProductID;
-                    nameCell.textContent = product.ProductName;
-                    quantityCell.textContent = product.total_quantity;
-
-                    row.appendChild(placeCell);
-                    row.appendChild(idCell);
-                    row.appendChild(nameCell);
-                    row.appendChild(quantityCell);
-
-                    result.appendChild(row);
-                });
-
-            } catch (error) {
-                result.innerHTML = '';
-
-                const row = document.createElement('tr');
-                const cell = document.createElement('td');
-
-                cell.colSpan = 4;
-                cell.textContent = 'Ошибка: ' + error.message;
-
-                row.appendChild(cell);
-                result.appendChild(row);
+            if (!response.ok) {
+                showError(result, data.detail || 'Ошибка обновления');
+                return;
             }
+
+            result.innerHTML =
+                '<div class="result-box success">✓ ' + esc(data.message || 'Обновлено') +
+                ' — позиция ' + esc(data.position) + ' → ' + esc(data.new_value) + '</div>';
+
+        } catch (error) {
+            showError(result, 'Ошибка: ' + error.message);
+        } finally {
+            setLoading(btn, false);
         }
-    </script>
+    }
+
+    /* =====================================================
+       PageRank
+    ===================================================== */
+    async function getPageRank() {
+        const result = document.getElementById('pageRankResult');
+        const wrap = document.getElementById('pageRankWrap');
+        const errBox = document.getElementById('pageRankError');
+        const btn = document.getElementById('btnRank');
+
+        errBox.innerHTML = '';
+        setLoading(btn, true);
+
+        try {
+            const response = await fetch('/api/pagerank');
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.detail || 'Ошибка расчёта PageRank');
+            }
+
+            result.innerHTML = data.map((product, index) =>
+                '<tr>' +
+                    '<td><span class="rank-medal r' + (index + 1) + '">' + (index + 1) + '</span></td>' +
+                    '<td class="mono">' + esc(product.ProductID) + '</td>' +
+                    '<td class="num mono">' + esc(product.PageRank.toFixed(6)) + '</td>' +
+                '</tr>'
+            ).join('');
+
+            wrap.classList.remove('hidden');
+
+        } catch (error) {
+            wrap.classList.add('hidden');
+            showError(errBox, 'Ошибка: ' + error.message);
+        } finally {
+            setLoading(btn, false);
+        }
+    }
+
+    /* =====================================================
+       Binary Heap — топ-10
+    ===================================================== */
+    async function getHeapTopProducts() {
+        const result = document.getElementById('heapResult');
+        const wrap = document.getElementById('heapWrap');
+        const errBox = document.getElementById('heapError');
+        const btn = document.getElementById('btnHeap');
+
+        errBox.innerHTML = '';
+        setLoading(btn, true);
+
+        try {
+            const response = await fetch('/api/heap/top-products');
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.detail || 'Ошибка расчёта Binary Heap');
+            }
+
+            result.innerHTML = data.map((product, index) =>
+                '<tr>' +
+                    '<td><span class="rank-medal r' + (index + 1) + '">' + (index + 1) + '</span></td>' +
+                    '<td class="mono">' + esc(product.ProductID) + '</td>' +
+                    '<td>' + esc(product.ProductName) + '</td>' +
+                    '<td class="num">' + fmtInt(product.total_quantity) + '</td>' +
+                '</tr>'
+            ).join('');
+
+            wrap.classList.remove('hidden');
+
+        } catch (error) {
+            wrap.classList.add('hidden');
+            showError(errBox, 'Ошибка: ' + error.message);
+        } finally {
+            setLoading(btn, false);
+        }
+    }
+
+    /* =====================================================
+       Bootstrap
+    ===================================================== */
+    async function getBootstrap() {
+        const repeats = document.getElementById('bootRepeats').value;
+        const result = document.getElementById('bootstrapResult');
+        const btn = document.getElementById('btnBoot');
+
+        setLoading(btn, true, 'Считаем…');
+
+        try {
+            const response = await fetch(`/api/bootstrap?repeats=${encodeURIComponent(repeats)}`);
+            const data = await response.json();
+
+            if (!response.ok) {
+                showError(result, data.detail || 'Ошибка расчёта Bootstrap');
+                return;
+            }
+
+            const ci = data.confidence_interval;
+
+            result.innerHTML =
+                '<div class="result-box" style="display:flex;gap:24px;flex-wrap:wrap;align-items:center;">' +
+                    '<div class="big-number">' + fmtNum(data.mean_spending) +
+                        '<small>средние траты на клиента</small></div>' +
+                    '<div style="flex:1;min-width:200px;">' +
+                        '<div style="font-weight:600;color:var(--green)">95% ДИ: ' +
+                            fmtNum(ci.lower) + ' — ' + fmtNum(ci.upper) + '</div>' +
+                        '<div style="color:var(--muted);font-size:13px;margin-top:4px;">' +
+                            'клиентов: ' + fmtInt(data.customers_count) +
+                            ' · повторений: ' + fmtInt(data.repeats) + '</div>' +
+                    '</div>' +
+                '</div>';
+
+        } catch (error) {
+            showError(result, 'Ошибка: ' + error.message);
+        } finally {
+            setLoading(btn, false);
+        }
+    }
+
+    /* Enter в полях поиска */
+    document.getElementById('orderId').addEventListener('keydown', e => {
+        if (e.key === 'Enter') findOrder();
+    });
+    document.getElementById('productId').addEventListener('keydown', e => {
+        if (e.key === 'Enter') findProduct();
+    });
+</script>
 
 </body>
 </html>

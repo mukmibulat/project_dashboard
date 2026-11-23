@@ -1,4 +1,3 @@
-
 class MyHashMap:
     MAX_LOAD_FACTOR = 0.75
 
