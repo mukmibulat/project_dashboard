@@ -557,8 +557,9 @@
 
     <div class="note">
         <span>ℹ️</span>
-        <span>Файл отправляется на сервер и становится датасетом для алгоритмов ниже.
-        Пока CSV не загружен, алгоритмы не работают.</span>
+        <span>✅ Данные уже загружены из датасета <span class="mono">data/Amazon.csv</span> в папке <b>data</b> —
+        алгоритмы ниже работают сразу, <b>без загрузки файла</b>.
+        CSV здесь можно выбрать только для просмотра состава и статистики локально в браузере.</span>
     </div>
 
     <div id="datasetView" class="hidden" style="margin-top:18px;">
@@ -756,7 +757,7 @@
 
 </div>
 
-<footer>Amazon Sales Dashboard · FastAPI + vanilla JS · данные алгоритмов: загруженный CSV</footer>
+<footer>Amazon Sales Dashboard · FastAPI + vanilla JS · данные алгоритмов: data/Amazon.csv</footer>
 
 <script>
     /* =====================================================
@@ -855,18 +856,10 @@
         reader.onload = () => {
             bar.style.width = '85%';
             // даём браузеру отрисовать прогресс перед тяжёлым разбором
-            setTimeout(async () => {
+            setTimeout(() => {
                 try {
                     const parsed = parseCSV(reader.result);
                     if (parsed.length < 2) throw new Error('Файл пуст или содержит только заголовок');
-
-                    const formData = new FormData();
-                    formData.append('file', file);
-                    const response = await fetch('/api/dataset', { method: 'POST', body: formData });
-                    if (!response.ok) {
-                        const err = await response.json();
-                        throw new Error(err.detail || 'Ошибка загрузки на сервер');
-                    }
 
                     const headers = parsed[0];
                     const rows = parsed.slice(1).filter(r => r.some(c => c !== ''));
@@ -889,7 +882,7 @@
                 } catch (err) {
                     progress.classList.add('hidden');
                     bar.style.width = '0';
-                    alert('Не удалось загрузить CSV: ' + err.message);
+                    alert('Не удалось разобрать CSV: ' + err.message);
                 }
             }, 30);
         };
@@ -1085,7 +1078,6 @@
 
     function resetDataset() {
         dataset = null;
-        fetch('/api/dataset', { method: 'DELETE' });
         document.getElementById('datasetView').classList.add('hidden');
         document.getElementById('dropzone').classList.remove('hidden');
     }
